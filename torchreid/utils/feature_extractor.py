@@ -65,13 +65,14 @@ class FeatureExtractor(object):
         pixel_std=[0.229, 0.224, 0.225],
         pixel_norm=True,
         device='cuda',
-        verbose=True
+        verbose=True,
+        pretrained=False
     ):
         # Build model
         model = build_model(
             model_name,
             num_classes=1,
-            pretrained=True,
+            pretrained=pretrained,
             use_gpu=device.startswith('cuda')
         )
         model.eval()
@@ -84,8 +85,12 @@ class FeatureExtractor(object):
             print('- params: {:,}'.format(num_params))
             print('- flops: {:,}'.format(flops))
 
-        if model_path and check_isfile(model_path):
-            load_pretrained_weights(model, model_path)
+        if not pretrained:
+            if model_path and check_isfile(model_path):
+                load_pretrained_weights(model, model_path)
+            else:
+                raise ValueError('model path is not exists')
+
 
         # Build transform functions
         transforms = []
